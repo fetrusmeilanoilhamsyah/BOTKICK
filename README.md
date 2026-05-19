@@ -1,350 +1,284 @@
 # 🤖 Bot Asisten Grup Telegram
 
-Bot Telegram yang aman, modular, dan scalable untuk moderasi grup dengan sistem otorisasi berjenjang (Owner & Admin) dan fitur auto-moderation.
+Bot moderasi grup Telegram yang **modular**, **aman**, dan **production-ready** dengan sistem otorisasi berjenjang, auto-moderation, dan fitur auto-clean chat.
+
+---
 
 ## ✨ Fitur Utama
 
-### 🔐 Sistem Otorisasi Berjenjang
-- **Owner (Superadmin)**: Kontrol penuh atas bot dan manajemen admin
-- **Admin**: Dapat melakukan moderasi grup
-- **Database SQLite**: Penyimpanan data admin yang aman dan terlindungi dari corrupt
+| Fitur | Keterangan |
+|---|---|
+| 🔐 Otorisasi berjenjang | Owner → Admin → Member, berbasis database SQLite |
+| 🧹 Auto-clean command | Pesan `/command` admin terhapus otomatis setelah dieksekusi |
+| ⏱️ Auto-delete balasan | Notifikasi bot menghilang sendiri setelah 10 detik |
+| 🔇 Moderasi grup | `/mute`, `/unmute`, `/ban` dengan dukungan durasi |
+| 🛡️ Auto-moderation | Deteksi & hapus link otomatis dari non-admin |
+| 🔒 Akses terbatas | `/start` hanya bisa digunakan Owner & Admin |
 
-### 👥 Manajemen Admin (Khusus Owner)
-- `/addadmin <user_id>` - Tambah admin baru (via ID atau reply)
-- `/deladmin <user_id>` - Hapus admin dari database
-- `/listadmin` - Tampilkan daftar admin terdaftar
-
-### 🛡️ Fitur Moderasi (Owner & Admin)
-- `/mute [durasi]` - Bisukan user (5m, 2h, 1d, atau permanen)
-- `/unmute` - Buka mute user
-- `/ban` - Keluarkan user dari grup
-
-### 🔍 Auto-Moderation
-- Deteksi link otomatis (http, https, www, t.me, dll)
-- Hapus pesan berisi link dari non-admin
-- Peringatan otomatis yang menghilang setelah 10 detik
+---
 
 ## 📁 Struktur Proyek
 
 ```
-bot_asisten/
-├── bot.py                 # Entry point aplikasi
-├── config.py              # Konfigurasi dan environment variables
-├── database/
-│   └── db_manager.py      # SQLite database manager
+bot-asistengrup/
+├── bot.py                  # Entry point
+├── config.py               # Konfigurasi & env variables
+├── requirements.txt
+├── .env                    # ⚠️ RAHASIA — jangan di-commit!
+├── .env.example
 ├── handlers/
-│   ├── admin_handler.py   # Handler command admin
-│   ├── mod_handler.py     # Handler command moderasi
-│   └── auto_mod.py        # Handler auto-moderation
+│   ├── admin_handler.py    # /addadmin, /deladmin, /listadmin
+│   ├── mod_handler.py      # /mute, /unmute, /ban
+│   └── auto_mod.py         # Deteksi & hapus link otomatis
 ├── utils/
-│   └── decorators.py      # Decorator untuk otorisasi
-├── .env                   # Environment variables (JANGAN commit!)
-├── .env.example           # Template environment variables
-├── .gitignore             # File yang diabaikan git
-├── requirements.txt       # Dependencies Python
-├── bot.log               # Log file (auto-generated)
-└── bot_data.db           # Database SQLite (auto-generated)
+│   ├── decorators.py       # @owner_only, @admin_only, dll.
+│   └── helpers.py          # send_and_auto_delete & helper lain
+└── database/
+    └── db_manager.py       # SQLite manager
 ```
 
-## 🚀 Instalasi dan Setup
+---
 
-### 1. Prerequisites
-- Python 3.8 atau lebih baru
-- pip (Python package manager)
-- Bot Token dari [@BotFather](https://t.me/BotFather)
-- User ID Telegram Anda (dapat dari [@userinfobot](https://t.me/userinfobot))
+## 📋 Daftar Command
 
-### 2. Clone atau Download Repository
+### 👑 Owner Only
+
+| Command | Keterangan |
+|---|---|
+| `/start` | Info bot & daftar command |
+| `/addadmin <id>` atau reply + `/addadmin` | Tambah admin baru |
+| `/deladmin <id>` atau reply + `/deladmin` | Hapus admin |
+| `/listadmin` | Tampilkan semua admin |
+
+### 🛡️ Owner & Admin
+
+| Command | Keterangan |
+|---|---|
+| `/mute` | Mute permanen (reply ke pesan user) |
+| `/mute 5m` / `2h` / `1d` | Mute dengan durasi |
+| `/unmute` | Buka mute (reply ke pesan user) |
+| `/ban` | Kick user dari grup (reply ke pesan user) |
+
+> Semua pesan command dan balasan bot **terhapus otomatis dalam 10 detik**.
+
+---
+
+## 🚀 Deploy ke Ubuntu 24 (Aktif Terus & Anti-Crash)
+
+### Langkah 1 — Persiapan di VPS
+
 ```bash
-cd bot_asisten
-```
+# Update sistem
+sudo apt update && sudo apt upgrade -y
 
-### 3. Install Dependencies
-```bash
-# Buat virtual environment (opsional tapi direkomendasikan)
+# Install Python & pip
+sudo apt install python3 python3-pip python3-venv git -y
+
+# Clone proyek
+git clone https://github.com/username/bot-asistengrup.git
+cd bot-asistengrup
+
+# Buat virtual environment
 python3 -m venv venv
-source venv/bin/activate  # Linux/Mac
-# atau
-venv\Scripts\activate     # Windows
+source venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
 ```
 
-### 4. Konfigurasi Environment Variables
-```bash
-# Copy template .env
-cp .env.example .env
+### Langkah 2 — Konfigurasi `.env`
 
-# Edit file .env dengan editor favorit Anda
-nano .env  # atau vim, atau text editor lain
+```bash
+cp .env.example .env
+nano .env
 ```
 
-Isi file `.env` dengan:
+Isi file `.env`:
 ```env
 BOT_TOKEN=1234567890:ABCdefGHIjklMNOpqrsTUVwxyz
 OWNER_ID=123456789
 ```
 
-**Cara mendapatkan:**
-- `BOT_TOKEN`: Chat [@BotFather](https://t.me/BotFather) → `/newbot` → ikuti instruksi
-- `OWNER_ID`: Chat [@userinfobot](https://t.me/userinfobot) → kirim pesan apa saja → copy ID Anda
+Simpan: `Ctrl+X` → `Y` → `Enter`
 
-### 5. Jalankan Bot
+### Langkah 3 — Test Jalankan Bot
+
 ```bash
+source venv/bin/activate
 python bot.py
 ```
 
-Jika berhasil, Anda akan melihat:
-```
-==================================================
-Starting Bot Asisten Telegram
-Owner ID: 123456789
-Database: bot_data.db
-Registered admins: 0
-==================================================
-Bot is running... Press Ctrl+C to stop
-```
+Kalau sudah muncul `Application started` dan bot merespon, lanjut ke langkah berikutnya. Stop dulu dengan `Ctrl+C`.
 
-## 📱 Cara Menggunakan Bot
+### Langkah 4 — Buat Service systemd
 
-### Setup Awal di Grup
-
-1. **Tambahkan bot ke grup Telegram Anda**
-   - Buka grup → Add Members → cari bot Anda → Add
-
-2. **Promosikan bot menjadi Admin**
-   - Grup → Group Info → Administrators → Add Administrator
-   - Pilih bot Anda dan berikan permissions:
-     - ✅ Delete Messages
-     - ✅ Ban Users
-     - ✅ Restrict Members
-
-3. **Test bot**
-   - Kirim `/start` di private chat dengan bot
-   - Kirim `/start` di grup untuk verifikasi
-
-### Command Owner
-
-**Menambah Admin:**
-```
-Cara 1: Via User ID
-/addadmin 987654321
-
-Cara 2: Via Reply
-(Reply pesan user yang ingin dijadikan admin)
-/addadmin
-```
-
-**Menghapus Admin:**
-```
-/deladmin 987654321
-atau reply + /deladmin
-```
-
-**Lihat Daftar Admin:**
-```
-/listadmin
-```
-
-### Command Moderasi (Owner & Admin)
-
-**Mute User:**
-```
-(Reply pesan user yang ingin di-mute)
-/mute           # Mute permanen
-/mute 5m        # Mute 5 menit
-/mute 2h        # Mute 2 jam
-/mute 1d        # Mute 1 hari
-```
-
-**Unmute User:**
-```
-(Reply pesan user)
-/unmute
-```
-
-**Ban User:**
-```
-(Reply pesan user)
-/ban
-```
-
-### Auto-Moderation
-
-Bot otomatis menghapus pesan berisi link dari user yang:
-- ❌ Bukan Owner bot
-- ❌ Bukan Admin terdaftar di database
-- ❌ Bukan Admin bawaan grup
-
-Link yang terdeteksi:
-- `http://example.com`
-- `https://example.com`
-- `www.example.com`
-- `t.me/username`
-- Dan berbagai format URL lainnya
-
-## 🔧 Deploy ke Production (VPS)
-
-### Menggunakan systemd (Ubuntu/Debian)
-
-1. **Buat service file:**
 ```bash
-sudo nano /etc/systemd/system/telegram-bot.service
+sudo nano /etc/systemd/system/bot-asisten.service
 ```
 
-2. **Isi dengan:**
+Isi file (ganti `ubuntu` dengan username VPS kamu, sesuaikan path):
 ```ini
 [Unit]
-Description=Telegram Bot Asisten
+Description=Bot Asisten Grup Telegram
 After=network.target
 
 [Service]
 Type=simple
-User=your-username
-WorkingDirectory=/path/to/bot_asisten
-ExecStart=/path/to/venv/bin/python bot.py
+User=ubuntu
+WorkingDirectory=/home/ubuntu/bot-asistengrup
+ExecStart=/home/ubuntu/bot-asistengrup/venv/bin/python bot.py
+Environment=PYTHONUNBUFFERED=1
+
+# Auto-restart jika crash
 Restart=always
-RestartSec=10
+RestartSec=5
+
+# Logging
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target
 ```
 
-3. **Enable dan start service:**
+Simpan: `Ctrl+X` → `Y` → `Enter`
+
+### Langkah 5 — Aktifkan & Jalankan
+
 ```bash
+# Reload konfigurasi systemd
 sudo systemctl daemon-reload
-sudo systemctl enable telegram-bot
-sudo systemctl start telegram-bot
 
-# Cek status
-sudo systemctl status telegram-bot
+# Aktifkan agar auto-start saat VPS reboot
+sudo systemctl enable bot-asisten
 
-# Lihat log
-sudo journalctl -u telegram-bot -f
+# Jalankan sekarang
+sudo systemctl start bot-asisten
+
+# Cek status — pastikan "active (running)"
+sudo systemctl status bot-asisten
 ```
 
-### Menggunakan Screen (Alternatif sederhana)
-
-```bash
-# Install screen jika belum ada
-sudo apt install screen
-
-# Buat session baru
-screen -S telegram-bot
-
-# Jalankan bot
-python bot.py
-
-# Detach dari session: Ctrl+A lalu D
-# Reattach: screen -r telegram-bot
+Output sukses:
 ```
-
-## 📊 Database
-
-Bot menggunakan SQLite dengan struktur:
-
-```sql
-CREATE TABLE admins (
-    user_id INTEGER PRIMARY KEY,
-    username TEXT,
-    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+● bot-asisten.service - Bot Asisten Grup Telegram
+     Loaded: loaded (/etc/systemd/system/bot-asisten.service; enabled)
+     Active: active (running) since ...
 ```
-
-**Backup database:**
-```bash
-cp bot_data.db bot_data.db.backup
-```
-
-## 🔒 Keamanan
-
-### File Sensitif
-- ✅ `.env` - Sudah ada di `.gitignore`
-- ✅ `*.db` - Sudah ada di `.gitignore`
-- ✅ `bot.log` - Sudah ada di `.gitignore`
-
-### Best Practices
-1. **Jangan commit `.env` ke repository**
-2. **Backup database secara berkala**
-3. **Gunakan user dengan privileges terbatas untuk production**
-4. **Monitor log secara rutin**: `tail -f bot.log`
-
-## 📝 Logging
-
-Bot menghasilkan log di dua tempat:
-1. **File**: `bot.log` - Semua log tersimpan di sini
-2. **Console**: Output real-time saat bot berjalan
-
-Level logging:
-- INFO: Operasi normal
-- WARNING: Hal yang perlu perhatian
-- ERROR: Error yang perlu diperbaiki
-
-## 🐛 Troubleshooting
-
-### Bot tidak merespon
-```bash
-# Cek apakah bot berjalan
-ps aux | grep bot.py
-
-# Cek log untuk error
-tail -f bot.log
-
-# Cek token bot
-cat .env
-```
-
-### Database error
-```bash
-# Cek permissions
-ls -la bot_data.db
-
-# Hapus dan biarkan auto-generate ulang (DATA AKAN HILANG!)
-rm bot_data.db
-python bot.py
-```
-
-### Bot tidak bisa delete/mute/ban
-- Pastikan bot adalah Admin di grup
-- Cek permissions bot di grup settings
-
-## 🔄 Update Bot
-
-```bash
-# Pull update terbaru (jika menggunakan git)
-git pull
-
-# Update dependencies
-pip install -r requirements.txt --upgrade
-
-# Restart bot
-sudo systemctl restart telegram-bot
-```
-
-## 📞 Support
-
-Jika ada masalah:
-1. Cek log: `tail -f bot.log`
-2. Cek konfigurasi: Pastikan `.env` sudah benar
-3. Cek permissions: Bot harus admin di grup
-4. Test di private chat dulu untuk isolasi masalah
-
-## 📄 License
-
-Project ini dibuat untuk tujuan edukasi dan penggunaan pribadi.
-
-## 🙏 Credits
-
-Dibuat dengan menggunakan:
-- [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) v20+
-- SQLite3
-- Python 3.8+
 
 ---
 
-**⚠️ PENTING:** Jangan lupa untuk:
-- ✅ Copy `.env.example` ke `.env`
-- ✅ Isi `BOT_TOKEN` dan `OWNER_ID`
-- ✅ Jangan commit file `.env` dan `*.db` ke repository
-- ✅ Promosikan bot sebagai admin di grup
+## 🔧 Perintah Sehari-hari
+
+```bash
+# Cek status bot
+sudo systemctl status bot-asisten
+
+# Lihat log live (Ctrl+C untuk keluar)
+sudo journalctl -u bot-asisten -f
+
+# Lihat 50 log terakhir
+sudo journalctl -u bot-asisten -n 50
+
+# Restart bot (setelah update kode)
+sudo systemctl restart bot-asisten
+
+# Stop bot
+sudo systemctl stop bot-asisten
+```
+
+---
+
+## 🔄 Update Kode
+
+```bash
+cd /home/ubuntu/bot-asistengrup
+
+# Pull update terbaru
+git pull
+
+# Update dependencies (jika ada perubahan)
+source venv/bin/activate
+pip install -r requirements.txt --upgrade
+
+# Restart bot agar perubahan berlaku
+sudo systemctl restart bot-asisten
+```
+
+---
+
+## 🛡️ Anti-Crash
+
+Bot sudah dilindungi secara berlapis:
+
+| Perlindungan | Cara Kerja |
+|---|---|
+| **systemd `Restart=always`** | Bot restart otomatis dalam 5 detik jika crash |
+| **systemd `enable`** | Bot hidup otomatis saat VPS reboot |
+| **Error handler global** | Semua exception di handler tertangkap, bot tidak crash |
+| **`BadRequest` handling** | Pesan sudah terhapus → di-log, bot lanjut jalan |
+| **`Forbidden` handling** | Bot tidak punya izin → di-log, bot lanjut jalan |
+| **`drop_pending_updates=True`** | Update lama dibuang saat bot baru nyala |
+
+**⚠️ Satu hal yang WAJIB dihindari — jangan jalankan 2 instance:**
+```bash
+# Cek apakah ada instance yang sudah jalan
+ps aux | grep bot.py
+
+# Kalau ada, matikan dulu
+pkill -f bot.py
+
+# Baru jalankan via systemd
+sudo systemctl start bot-asisten
+```
+
+---
+
+## 🐛 Troubleshooting
+
+| Masalah | Solusi |
+|---|---|
+| `Conflict: terminated by other getUpdates` | Ada 2 instance — `pkill -f bot.py` lalu `systemctl start bot-asisten` |
+| Bot tidak respon di grup | Jadikan bot Admin dengan izin Delete Messages, Ban Users, Restrict Members |
+| Bot tidak bisa hapus pesan | Cek permission **Delete Messages** di pengaturan admin grup |
+| `[Errno 2] No such file .env` | Jalankan `cp .env.example .env` lalu isi token & owner ID |
+| Service gagal start | `journalctl -u bot-asisten -n 30` untuk lihat error |
+
+---
+
+## 🔒 Keamanan
+
+- ❌ Jangan commit `.env` ke GitHub
+- ❌ Jangan share `BOT_TOKEN` ke siapapun  
+- ✅ File `.env`, `*.db`, `bot.log` sudah ada di `.gitignore`
+
+**Backup database:**
+```bash
+cp bot_data.db bot_data_backup_$(date +%Y%m%d).db
+```
+
+**Backup otomatis tiap hari jam 02.00:**
+```bash
+crontab -e
+# Tambahkan baris ini:
+0 2 * * * cp /home/ubuntu/bot-asistengrup/bot_data.db /home/ubuntu/bot_data_$(date +\%Y\%m\%d).db
+```
+
+---
+
+## 📦 Setup Grup
+
+1. **Tambahkan bot ke grup** → Add Members → cari username bot
+2. **Jadikan bot Admin** → Group Info → Administrators → Add Administrator
+   - ✅ Delete Messages
+   - ✅ Ban Users
+   - ✅ Restrict Members
+3. Test dengan `/start` di private chat bot
+
+---
+
+> **⚠️ Checklist sebelum deploy:**
+> - [ ] Isi `BOT_TOKEN` dan `OWNER_ID` di `.env`
+> - [ ] Bot sudah jadi Admin di grup dengan izin Delete/Ban/Restrict
+> - [ ] Service systemd sudah `enabled` dan `active (running)`
+> - [ ] Tidak ada instance bot lain yang berjalan
