@@ -37,10 +37,15 @@ def owner_only(func):
                 f"user {user.id} (@{user.username})"
             )
             
-            await update.message.reply_text(
-                "❌ <b>Akses Ditolak</b>\n\n"
-                "Command ini hanya bisa digunakan oleh Owner bot.",
-                parse_mode='HTML'
+            from utils.helpers import send_and_auto_delete
+            await send_and_auto_delete(
+                update, context,
+                text=(
+                    "❌ <b>Akses Ditolak</b>\n\n"
+                    "Command ini hanya bisa digunakan oleh Owner bot."
+                ),
+                delay=10,
+                delete_command=True,
             )
             return
         
@@ -73,10 +78,15 @@ def admin_only(func):
                 f"user {user.id} (@{user.username})"
             )
             
-            await update.message.reply_text(
-                "❌ <b>Akses Ditolak</b>\n\n"
-                "Command ini hanya bisa digunakan oleh Owner atau Admin bot.",
-                parse_mode='HTML'
+            from utils.helpers import send_and_auto_delete
+            await send_and_auto_delete(
+                update, context,
+                text=(
+                    "❌ <b>Akses Ditolak</b>\n\n"
+                    "Command ini hanya bisa digunakan oleh Owner atau Admin bot."
+                ),
+                delay=10,
+                delete_command=True,
             )
             return
         
@@ -130,10 +140,15 @@ def require_reply(func):
         
         # Cek apakah command ini adalah reply
         if not message.reply_to_message:
-            await message.reply_text(
-                "⚠️ Gunakan command ini dengan <b>reply</b> ke pesan user yang ingin dikenakan aksi.\n\n"
-                "Contoh: Reply pesan user, lalu ketik command.",
-                parse_mode='HTML'
+            from utils.helpers import send_and_auto_delete
+            await send_and_auto_delete(
+                update, context,
+                text=(
+                    "⚠️ Gunakan command ini dengan <b>reply</b> ke pesan user yang ingin dikenakan aksi.\n\n"
+                    "Contoh: Reply pesan user, lalu ketik command."
+                ),
+                delay=10,
+                delete_command=True,
             )
             return
         

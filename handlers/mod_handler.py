@@ -57,6 +57,25 @@ async def mute_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
+    # ── Validasi: cegah mute sesama administrator ──
+    try:
+        target_member = await context.bot.get_chat_member(chat.id, target_user.id)
+        if target_member.status in ['creator', 'administrator']:
+            await send_and_auto_delete(
+                update, context,
+                text=(
+                    "⚠️ <b>Gagal mute!</b>\n\n"
+                    "User target adalah <b>Administrator / Pemilik Grup</b>.\n"
+                    "Telegram API tidak mengizinkan bot untuk membatasi (mute/ban) sesama administrator. "
+                    "Demote status admin user tersebut terlebih dahulu di pengaturan grup."
+                ),
+                delay=10,
+                delete_command=False,
+            )
+            return
+    except TelegramError as e:
+        logger.error(f"Error checking admin status for mute: {e}")
+
     # ── Parse durasi mute (opsional) ──
     until_date = None
     duration_text = "permanen"
@@ -194,6 +213,25 @@ async def ban_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             delete_command=False,
         )
         return
+
+    # ── Validasi: cegah ban sesama administrator ──
+    try:
+        target_member = await context.bot.get_chat_member(chat.id, target_user.id)
+        if target_member.status in ['creator', 'administrator']:
+            await send_and_auto_delete(
+                update, context,
+                text=(
+                    "⚠️ <b>Gagal ban!</b>\n\n"
+                    "User target adalah <b>Administrator / Pemilik Grup</b>.\n"
+                    "Telegram API tidak mengizinkan bot untuk mengeluarkan (ban) sesama administrator. "
+                    "Demote status admin user tersebut terlebih dahulu di pengaturan grup."
+                ),
+                delay=10,
+                delete_command=False,
+            )
+            return
+    except TelegramError as e:
+        logger.error(f"Error checking admin status for ban: {e}")
 
     try:
         await context.bot.ban_chat_member(chat_id=chat.id, user_id=target_user.id)
