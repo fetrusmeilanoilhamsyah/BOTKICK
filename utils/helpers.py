@@ -125,9 +125,9 @@ async def clean_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         )
 
     except BadRequest as e:
-        logger.debug(
+        logger.warning(
             f"[clean_command] Gagal hapus command {message.message_id} "
-            f"(mungkin sudah terhapus): {e}"
+            f"di chat {message.chat_id} (BadRequest): {e}"
         )
 
     except Forbidden as e:
