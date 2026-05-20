@@ -299,3 +299,9 @@ async def send_and_auto_delete(
         parse_mode=parse_mode,
         **reply_kwargs,
     )
+
+    # Langkah 2: Hapus command admin secara instan (jika diaktifkan)
+    if delete_command:
+        await clean_command(update, context)
+
+    return sent
