@@ -42,7 +42,7 @@ async def mute_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             update, context,
             text="⚠️ Anda tidak bisa mute diri sendiri!",
             delay=10,
-            delete_command=False,   # Jangan hapus command jika validasi gagal
+            delete_command=True,   # Hapus command agar grup tetap bersih
         )
         return
 
@@ -53,7 +53,7 @@ async def mute_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             update, context,
             text="⚠️ Bot tidak bisa di-mute!",
             delay=10,
-            delete_command=False,
+            delete_command=True,
         )
         return
 
@@ -70,7 +70,7 @@ async def mute_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     "Demote status admin user tersebut terlebih dahulu di pengaturan grup."
                 ),
                 delay=10,
-                delete_command=False,
+                delete_command=True,
             )
             return
     except TelegramError as e:
@@ -112,7 +112,7 @@ async def mute_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         "• Tanpa argumen = mute permanen"
                     ),
                     delay=10,
-                    delete_command=False,
+                    delete_command=True,
                 )
                 return
 
@@ -124,7 +124,7 @@ async def mute_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     "Contoh: <code>/mute 5m</code> atau <code>/mute 2h</code>"
                 ),
                 delay=10,
-                delete_command=False,
+                delete_command=True,
             )
             return
 
@@ -177,7 +177,7 @@ async def mute_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"Pastikan bot memiliki hak admin di grup ini."
             ),
             delay=10,
-            delete_command=False,
+            delete_command=True,
         )
         logger.error(f"Error muting user: {e}")
 
@@ -200,7 +200,7 @@ async def ban_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             update, context,
             text="⚠️ Anda tidak bisa ban diri sendiri!",
             delay=10,
-            delete_command=False,
+            delete_command=True,
         )
         return
 
@@ -210,7 +210,7 @@ async def ban_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             update, context,
             text="⚠️ Bot tidak bisa di-ban!",
             delay=10,
-            delete_command=False,
+            delete_command=True,
         )
         return
 
@@ -227,7 +227,7 @@ async def ban_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     "Demote status admin user tersebut terlebih dahulu di pengaturan grup."
                 ),
                 delay=10,
-                delete_command=False,
+                delete_command=True,
             )
             return
     except TelegramError as e:
@@ -268,7 +268,7 @@ async def ban_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"Pastikan bot memiliki hak admin di grup ini."
             ),
             delay=10,
-            delete_command=False,
+            delete_command=True,
         )
         logger.error(f"Error banning user: {e}")
 
@@ -328,7 +328,7 @@ async def unmute_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"Error: {str(e)}"
             ),
             delay=10,
-            delete_command=False,
+            delete_command=True,
         )
         logger.error(f"Error unmuting user: {e}")
 
